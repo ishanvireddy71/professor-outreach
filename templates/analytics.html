@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — Professor Outreach{% endblock %}
+
+{% block extra_css %}
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--white); padding: 24px;
+            border-radius: var(--radius-lg); border: 1px solid var(--gray-200);
+            text-align: center;
+        }
+        .stat-number { font-size: 36px; font-weight: 800; color: var(--primary); line-height: 1; }
+        .stat-label { color: var(--gray-500); font-size: 14px; margin-top: 8px; font-weight: 500; }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .chart-card {
+            background: var(--white); border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200); padding: 24px;
+        }
+        .chart-card h3 { font-size: 16px; font-weight: 700; color: var(--gray-900); margin-bottom: 20px; }
+        .chart-container { position: relative; height: 300px; }
+{% endblock %}
+
+{% block content %}
+        <div class="page-header">
+            <h1>Analytics</h1>
+            <p>Track your outreach campaign performance</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_professors }}</div>
+                <div class="stat-label">Total Professors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_emails }}</div>
+                <div class="stat-label">Total Emails</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.sent_emails }}</div>
+                <div class="stat-label">Emails Sent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.ready_emails }}</div>
+                <div class="stat-label">Ready to Send</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.draft_emails }}</div>
+                <div class="stat-label">Drafts</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>&#128200; Email Activity (Last 30 Days)</h3>
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>&#127979; Top Universities</h3>
+                <div class="chart-container">
+                    <canvas id="universityChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>&#9989; Professor Approval Status</h3>
+                <div class="chart-container">
+                    <canvas id="approvalChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>&#127942; Top Departments</h3>
+                <div class="chart-container">
+                    <canvas id="departmentChart"></canvas>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block extra_js %}
+        const activityData = {{ stats.daily_activity|map(attribute='day')|list|tojson }};
+        const activityCounts = {{ stats.daily_activity|map(attribute='count')|list|tojson }};
+        const uniLabels = {{ stats.university_stats|map(attribute='university')|list|tojson }};
+        const uniCounts = {{ stats.university_stats|map(attribute='email_count')|list|tojson }};
+        const deptLabels = {{ stats.department_stats|map(attribute='department')|list|tojson }};
+        const deptCounts = {{ stats.department_stats|map(attribute='email_count')|list|tojson }};
+        const approvedCount = {{ stats.approved_count }};
+        const rejectedCount = {{ stats.rejected_count }};
+        const pendingCount = {{ stats.pending_count }};
+
+        new Chart(document.getElementById('activityChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: activityData,
+                datasets: [{
+                    label: 'Emails Created', data: activityCounts,
+                    borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    borderWidth: 2, fill: true, tension: 0.4,
+                    pointRadius: 4, pointBackgroundColor: '#4f46e5'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('universityChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: uniLabels,
+                datasets: [{
+                    label: 'Emails', data: uniCounts,
+                    backgroundColor: ['#4f46e5', '#7c3aed', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('approvalChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Rejected', 'Pending'],
+                datasets: [{
+                    data: [approvedCount, rejectedCount, pendingCount],
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: { legend: { position: 'bottom', labels: { padding: 20 } } }
+            }
+        });
+
+        new Chart(document.getElementById('departmentChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: deptLabels,
+                datasets: [{
+                    label: 'Emails', data: deptCounts,
+                    backgroundColor: '#3b82f6', borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+{% endblock %}

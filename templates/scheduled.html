@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Scheduled Emails — Professor Outreach{% endblock %}
+
+{% block extra_css %}
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .page-header h1 { font-size: 30px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+        .page-header p { color: var(--gray-500); font-size: 14px; }
+        .queue-table { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); overflow: hidden; box-shadow: var(--shadow); }
+        .queue-table table { width: 100%; border-collapse: collapse; }
+        .queue-table th {
+            background: var(--gray-50); padding: 16px; text-align: left;
+            font-weight: 600; font-size: 12px; text-transform: uppercase;
+            letter-spacing: 0.05em; color: var(--gray-500); border-bottom: 1px solid var(--gray-200);
+        }
+        .queue-table td { padding: 16px; border-bottom: 1px solid var(--gray-100); font-size: 14px; }
+        .queue-table tr:hover { background: var(--gray-50); }
+        .professor-info h4 { font-weight: 600; color: var(--gray-900); font-size: 14px; }
+        .professor-info p { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+{% endblock %}
+
+{% block content %}
+        <div class="page-header">
+            <div>
+                <h1>Scheduled Emails</h1>
+                <p>Emails scheduled for future delivery</p>
+            </div>
+        </div>
+
+        {% if scheduled %}
+        <div class="queue-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Professor</th>
+                        <th>University</th>
+                        <th>Subject</th>
+                        <th>Scheduled For</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in scheduled %}
+                    <tr>
+                        <td>
+                            <div class="professor-info">
+                                <h4>{{ item.professor_name }}</h4>
+                                <p>{{ item.professor_email }}</p>
+                            </div>
+                        </td>
+                        <td>{{ item.university }}</td>
+                        <td>{{ item.subject }}</td>
+                        <td>{{ item.send_at }}</td>
+                        <td><span class="status-badge status-ready">&#9201; Scheduled</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">&#128338;</div>
+            <h3>No scheduled emails</h3>
+            <p>Schedule emails from the Emails page to see them here.</p>
+            <a href="/emails" class="btn btn-primary" style="margin-top: 16px;">Go to Emails</a>
+        </div>
+        {% endif %}
+{% endblock %}

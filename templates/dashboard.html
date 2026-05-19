@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Professor Outreach{% endblock %}
+
+{% block extra_css %}
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), #7c3aed);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--gray-300); }
+        .stat-card:hover::before { opacity: 1; }
+        .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--success), #059669); }
+        .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--warning), #d97706); }
+        .stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--info), #2563eb); }
+        .stat-card:nth-child(5)::before { background: linear-gradient(90deg, var(--danger), #dc2626); }
+        .stat-card:nth-child(6)::before { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+        .stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .stat-icon {
+            width: 40px; height: 40px;
+            border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+        }
+        .stat-icon.blue { background: var(--primary-light); }
+        .stat-icon.green { background: var(--success-light); }
+        .stat-icon.yellow { background: var(--warning-light); }
+        .stat-icon.red { background: var(--danger-light); }
+        .stat-icon.purple { background: #ede9fe; }
+        .stat-number { font-size: 32px; font-weight: 800; color: var(--gray-900); letter-spacing: -0.02em; line-height: 1; }
+        .stat-label { color: var(--gray-500); font-size: 14px; margin-top: 6px; font-weight: 500; }
+
+        .actions-section {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+            padding: 32px;
+        }
+        .actions-section h2 {
+            font-size: 18px; font-weight: 700; color: var(--gray-900);
+            margin-bottom: 20px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .action-btn {
+            display: flex; flex-direction: column; align-items: flex-start;
+            gap: 12px; padding: 24px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            background: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left; width: 100%;
+        }
+        .action-btn:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .action-btn-icon {
+            width: 48px; height: 48px;
+            border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+        }
+        .action-btn.discover .action-btn-icon { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+        .action-btn.find .action-btn-icon { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+        .action-btn.generate .action-btn-icon { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+        .action-btn.send .action-btn-icon { background: linear-gradient(135deg, #fee2e2, #fecaca); }
+        .action-btn-title { font-size: 16px; font-weight: 700; color: var(--gray-900); }
+        .action-btn-desc { font-size: 13px; color: var(--gray-500); line-height: 1.5; }
+
+        .user-meta {
+            display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap;
+        }
+        .meta-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 100px;
+            font-size: 13px; font-weight: 500; color: var(--gray-600);
+        }
+        .search-section { margin-bottom: 24px; }
+{% endblock %}
+
+{% block content %}
+        <header class="page-header">
+            <h1>Dashboard</h1>
+            <p>Manage your professor outreach campaign</p>
+            <div class="user-meta">
+                <span class="meta-tag">&#128100; {{ stats.your_name }}</span>
+                <span class="meta-tag">&#129516; {{ stats.research_topic }}</span>
+                <span class="meta-tag">&#127979; {{ stats.target_universities|join(", ") }}</span>
+            </div>
+        </header>
+
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search professors, emails, or universities..." onkeyup="handleSearch(event)">
+                <button class="btn btn-primary" onclick="handleSearch()">&#128269; Search</button>
+            </div>
+        </div>
+
+        <div class="stats-grid" role="region" aria-label="Statistics">
+            <article class="stat-card">
+                <div class="stat-header"><div class="stat-icon blue">&#128101;</div></div>
+                <div class="stat-number">{{ stats.total_professors }}</div>
+                <div class="stat-label">Professors Found</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-header"><div class="stat-icon green">&#9993;</div></div>
+                <div class="stat-number">{{ stats.with_email }}</div>
+                <div class="stat-label">With Emails</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-header"><div class="stat-icon yellow">&#10067;</div></div>
+                <div class="stat-number">{{ stats.without_email }}</div>
+                <div class="stat-label">Missing Emails</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-header"><div class="stat-icon purple">&#128221;</div></div>
+                <div class="stat-number">{{ stats.emails_generated }}</div>
+                <div class="stat-label">Emails Generated</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-header"><div class="stat-icon green">&#9989;</div></div>
+                <div class="stat-number">{{ stats.ready_to_send }}</div>
+                <div class="stat-label">Ready to Send</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-header"><div class="stat-icon red">&#128228;</div></div>
+                <div class="stat-number">{{ stats.sent_count }}</div>
+                <div class="stat-label">Emails Sent</div>
+            </article>
+        </div>
+
+        <section class="actions-section" aria-labelledby="actions-heading">
+            <h2 id="actions-heading">&#9889; Quick Actions</h2>
+            <div class="actions-grid">
+                <button class="action-btn discover" onclick="runAction('discover')" aria-label="Discover new professors">
+                    <div class="action-btn-icon">&#128269;</div>
+                    <div class="action-btn-title">Discover Professors</div>
+                    <div class="action-btn-desc">Search and find professors from target universities</div>
+                </button>
+                <button class="action-btn find" onclick="runAction('find-emails')" aria-label="Find email addresses">
+                    <div class="action-btn-icon">&#128231;</div>
+                    <div class="action-btn-title">Find Emails</div>
+                    <div class="action-btn-desc">Automatically find contact emails for professors</div>
+                </button>
+                <button class="action-btn generate" onclick="runAction('generate')" aria-label="Generate personalized emails">
+                    <div class="action-btn-icon">&#9997;</div>
+                    <div class="action-btn-title">Generate Emails</div>
+                    <div class="action-btn-desc">Create personalized outreach emails with AI</div>
+                </button>
+                <button class="action-btn send" onclick="runAction('send')" aria-label="Send emails">
+                    <div class="action-btn-icon">&#128228;</div>
+                    <div class="action-btn-title">Send Emails</div>
+                    <div class="action-btn-desc">Send approved emails to professors</div>
+                </button>
+            </div>
+        </section>
+{% endblock %}
+
+{% block extra_js %}
+        async function runAction(action) {
+    setProgress(true);
+    showToast('Processing...', 'info');
+    try {
+        const endpoints = {
+            'discover': '/api/discover',
+            'find-emails': '/api/find-emails', 
+            'generate': '/api/generate',
+            'send': '/api/send'
+        };
+        const response = await fetch(endpoints[action] || `/api/${action}`, { method: 'POST' });
+                const data = await response.json();
+                setProgress(false);
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    showToast(data.error || 'Unknown error', 'error');
+                }
+            } catch (e) {
+                setProgress(false);
+                showToast(e.message, 'error');
+            }
+        }
+
+        function handleSearch(e) {
+            if (e && e.key === 'Enter') {
+                const query = document.getElementById('searchInput').value.trim();
+                if (query) {
+                    window.location.href = '/professors?search=' + encodeURIComponent(query);
+                }
+            }
+        }
+{% endblock %}

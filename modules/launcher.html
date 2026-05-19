@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Professor Outreach</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .launch-container { text-align: center; padding: 40px; }
+        .logo {
+            width: 80px; height: 80px; background: white;
+            border-radius: 20px; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 40px; margin: 0 auto 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+        p { font-size: 16px; opacity: 0.9; margin-bottom: 32px; }
+        .btn {
+            display: inline-block; padding: 14px 32px;
+            background: white; color: #667eea;
+            border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 700;
+            cursor: pointer; text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .status { margin-top: 24px; font-size: 14px; opacity: 0.8; }
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="launch-container">
+        <div class="logo">&#127891;</div>
+        <h1>Professor Outreach</h1>
+        <p>Automated research collaboration tool</p>
+        <a href="http://127.0.0.1:5000" class="btn" id="launchBtn">&#128640; Launch App</a>
+        <div class="status" id="status">Waiting for server to start...</div>
+    </div>
+    <script>
+        let attempts = 0;
+        const maxAttempts = 30;
+        function checkServer() {
+            attempts++;
+            fetch('http://127.0.0.1:5000/', { mode: 'no-cors' })
+                .then(() => {
+                    document.getElementById('status').innerHTML = '&#127881; Server ready! Redirecting...';
+                    setTimeout(() => { window.location.href = 'http://127.0.0.1:5000'; }, 800);
+                })
+                .catch(() => {
+                    if (attempts < maxAttempts) {
+                        document.getElementById('status').innerHTML = '<span class="spinner"></span> Starting server... (' + attempts + '/' + maxAttempts + ')';
+                        setTimeout(checkServer, 500);
+                    } else {
+                        document.getElementById('status').innerHTML = '&#10060; Server not responding.<br>Please close and restart the app.';
+                        document.getElementById('launchBtn').style.display = 'none';
+                    }
+                });
+        }
+        checkServer();
+        document.getElementById('launchBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = 'http://127.0.0.1:5000';
+        });
+    </script>
+</body>
+</html>

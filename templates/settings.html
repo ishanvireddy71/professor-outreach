@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — Professor Outreach{% endblock %}
+
+{% block extra_css %}
+        .main { max-width: 900px; }
+        .page-header { margin-bottom: 32px; }
+        .page-header h1 { font-size: 32px; font-weight: 800; color: var(--gray-900); margin-bottom: 8px; }
+        .page-header p { color: var(--gray-500); font-size: 15px; }
+        .settings-card {
+            background: var(--white); border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200); padding: 32px;
+            margin-bottom: 24px; transition: all 0.3s;
+        }
+        .settings-card:hover { box-shadow: var(--shadow-lg); }
+        .settings-card h2 {
+            font-size: 18px; font-weight: 700; color: var(--gray-900);
+            margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+        }
+        .toggle-switch {
+            display: flex; align-items: center; gap: 12px; cursor: pointer;
+        }
+        .toggle-switch input { display: none; }
+        .toggle-slider {
+            width: 52px; height: 28px;
+            background: var(--gray-300); border-radius: 100px;
+            position: relative; transition: background 0.3s;
+        }
+        .toggle-slider::after {
+            content: ''; position: absolute;
+            width: 22px; height: 22px; background: white;
+            border-radius: 50%; top: 3px; left: 3px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+        .toggle-switch input:checked + .toggle-slider::after { transform: translateX(24px); }
+        .danger-zone {
+            border-color: var(--danger-light);
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+        }
+        .danger-zone h2 { color: var(--danger); }
+        body.dark-mode .danger-zone {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-color: var(--danger);
+        }
+{% endblock %}
+
+{% block content %}
+        <div class="page-header">
+            <h1>Settings</h1>
+            <p>Configure your profile, research preferences, and email settings</p>
+        </div>
+
+        <!-- Profile -->
+        <div class="settings-card">
+            <h2>&#128100; Your Profile</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="your_name">Full Name</label>
+                    <input type="text" id="your_name" value="{{ config.your_name or '' }}" placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label for="your_email">Email Address</label>
+                    <input type="email" id="your_email" value="{{ config.your_email or '' }}" placeholder="your@email.com">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="your_university">University / Institution</label>
+                    <input type="text" id="your_university" value="{{ config.your_university or '' }}" placeholder="Your university or institution">
+                </div>
+                <div class="form-group">
+                    <label for="your_major">Major</label>
+                    <input type="text" id="your_major" value="{{ config.your_major or '' }}" placeholder="e.g. Computer Science">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="your_year">Year</label>
+                <input type="text" id="your_year" value="{{ config.your_year or '' }}" placeholder="e.g. Third-year undergraduate">
+            </div>
+        </div>
+
+        <!-- Research -->
+        <div class="settings-card">
+            <h2>&#129516; Research</h2>
+            <div class="form-group">
+                <label for="research_topic">Research Topic</label>
+                <input type="text" id="research_topic" value="{{ config.research_topic or '' }}" placeholder="e.g. Machine Learning, NLP, Computer Vision">
+                <div class="form-hint">This will be used to personalize your outreach emails</div>
+            </div>
+            <div class="form-group">
+                <label for="target_universities">Target Universities (comma-separated)</label>
+                <textarea id="target_universities" placeholder="MIT, Stanford, UC Berkeley, Carnegie Mellon">{{ (config.target_universities or [])|join(', ') }}</textarea>
+                <div class="form-hint">Professors will be discovered from these universities</div>
+            </div>
+        </div>
+
+        <!-- AI Settings -->
+        <div class="settings-card">
+            <h2>&#129302; AI Email Generation</h2>
+            <div class="form-group">
+                <label for="openai_api_key">OpenAI API Key</label>
+                <input type="password" id="openai_api_key" value="{{ config.openai_api_key or '' }}" placeholder="sk-...">
+                <div class="form-hint">Optional. If provided, emails will be generated using GPT for truly unique, human-like content. Get yours at platform.openai.com</div>
+            </div>
+            <p style="color: var(--gray-500); font-size: 13px; margin-top: 8px;">
+                Without an API key, emails will still be personalized using smart templates with real professor names and research interests.
+            </p>
+        </div>
+
+        <!-- Email Settings -->
+        <div class="settings-card">
+            <h2>&#128231; Email Settings</h2>
+            <div class="form-group">
+                <label for="gmail_user">Gmail Address</label>
+                <input type="email" id="gmail_user" value="{{ config.gmail_user or '' }}" placeholder="your@gmail.com">
+                <div class="form-hint">Used to send emails via Gmail SMTP</div>
+            </div>
+            <div class="form-group">
+                <label for="gmail_app_password">Gmail App Password</label>
+                <input type="password" id="gmail_app_password" value="{{ config.gmail_app_password or '' }}" placeholder="xxxx xxxx xxxx xxxx">
+                <div class="form-hint">Generate this from Google Account &rarr; Security &rarr; App Passwords</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="emails_per_university">Emails per University</label>
+                    <input type="number" id="emails_per_university" value="{{ config.emails_per_university or 5 }}" min="1" max="50">
+                </div>
+                <div class="form-group">
+                    <label for="max_emails_per_day">Max Emails per Day</label>
+                    <input type="number" id="max_emails_per_day" value="{{ config.max_emails_per_day or 10 }}" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="delay_between_emails">Delay (seconds)</label>
+                    <input type="number" id="delay_between_emails" value="{{ config.delay_between_emails or 60 }}" min="10" max="300">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="test_mode" {% if config.test_mode %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                    <span>Test Mode (simulate sends without actually emailing)</span>
+                </label>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="saveBtn" style="margin-bottom: 32px;">
+            &#128190; Save All Settings
+        </button>
+
+        <!-- Change Password -->
+        <div class="settings-card">
+            <h2>&#128274; Change Password</h2>
+            <div class="form-group">
+                <label for="current_password">Current Password</label>
+                <input type="password" id="current_password" placeholder="Enter current password">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="new_password">New Password</label>
+                    <input type="password" id="new_password" placeholder="Minimum 6 characters">
+                </div>
+                <div class="form-group">
+                    <label for="confirm_new_password">Confirm New Password</label>
+                    <input type="password" id="confirm_new_password" placeholder="Re-enter new password">
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="changePassBtn">&#128274; Update Password</button>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="settings-card danger-zone">
+            <h2>&#128465; Danger Zone</h2>
+            <p style="color: var(--gray-500); margin-bottom: 20px;">Deleting your account is permanent and cannot be undone. All your data will be lost.</p>
+            <div class="form-group">
+                <label for="delete_password" style="color: var(--danger);">Enter Password to Confirm Deletion</label>
+                <input type="password" id="delete_password" placeholder="Your current password">
+            </div>
+            <button type="button" class="btn btn-danger" id="deleteBtn">&#128465; Delete Account</button>
+        </div>
+{% endblock %}
+
+{% block extra_js %}
+        document.getElementById('saveBtn').addEventListener('click', async function() {
+            const data = {
+                your_name: document.getElementById('your_name').value,
+                your_email: document.getElementById('your_email').value,
+                your_university: document.getElementById('your_university').value,
+                your_major: document.getElementById('your_major').value,
+                your_year: document.getElementById('your_year').value,
+                research_topic: document.getElementById('research_topic').value,
+                target_universities: document.getElementById('target_universities').value.split(',').map(s => s.trim()).filter(s => s),
+                openai_api_key: document.getElementById('openai_api_key').value,
+                gmail_user: document.getElementById('gmail_user').value,
+                gmail_app_password: document.getElementById('gmail_app_password').value,
+                emails_per_university: parseInt(document.getElementById('emails_per_university').value) || 5,
+                max_emails_per_day: parseInt(document.getElementById('max_emails_per_day').value) || 10,
+                delay_between_emails: parseInt(document.getElementById('delay_between_emails').value) || 60,
+                test_mode: document.getElementById('test_mode').checked
+            };
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) showToast('Settings saved!', 'success');
+                else showToast(result.error || 'Failed to save', 'error');
+            } catch (e) { showToast('Error: ' + e.message, 'error'); }
+        });
+
+        document.getElementById('changePassBtn').addEventListener('click', async function() {
+            const data = {
+                current_password: document.getElementById('current_password').value,
+                new_password: document.getElementById('new_password').value,
+                confirm_password: document.getElementById('confirm_new_password').value
+            };
+            try {
+                const response = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Password updated!', 'success');
+                    document.getElementById('current_password').value = '';
+                    document.getElementById('new_password').value = '';
+                    document.getElementById('confirm_new_password').value = '';
+                } else showToast(result.error || 'Failed', 'error');
+            } catch (e) { showToast('Error: ' + e.message, 'error'); }
+        });
+
+        document.getElementById('deleteBtn').addEventListener('click', async function() {
+            const password = document.getElementById('delete_password').value;
+            if (!password) { showToast('Enter your password to confirm', 'error'); return; }
+            if (!confirm('Are you absolutely sure? This will permanently delete your account and all data.')) return;
+            try {
+                const response = await fetch('/api/delete-account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Account deleted. Redirecting...', 'success');
+                    setTimeout(() => window.location.href = '/login', 2000);
+                } else showToast(result.error || 'Failed', 'error');
+            } catch (e) { showToast('Error: ' + e.message, 'error'); }
+        });
+{% endblock %}

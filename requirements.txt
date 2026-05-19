@@ -1,0 +1,10 @@
+scholarly
+ddgs
+requests
+beautifulsoup4
+dnspython
+flask
+python-dotenv
+openai
+werkzeug
+gunicorn

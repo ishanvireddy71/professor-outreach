@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Professors — Professor Outreach{% endblock %}
+
+{% block extra_css %}
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .page-header h1 { font-size: 30px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+        .page-header p { color: var(--gray-500); font-size: 14px; }
+        .professor-name { font-weight: 600; color: var(--gray-900); }
+        .professor-university { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+        .professor-table { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); overflow: hidden; box-shadow: var(--shadow); }
+        .professor-table table { width: 100%; border-collapse: collapse; }
+        .professor-table th {
+            background: var(--gray-50); padding: 16px; text-align: left;
+            font-weight: 600; font-size: 12px; text-transform: uppercase;
+            letter-spacing: 0.05em; color: var(--gray-500); border-bottom: 1px solid var(--gray-200);
+        }
+        .professor-table td { padding: 16px; border-bottom: 1px solid var(--gray-100); font-size: 14px; }
+        .professor-table tr:hover { background: var(--gray-50); }
+        .btn-sm { padding: 8px 14px; font-size: 13px; }
+{% endblock %}
+
+{% block content %}
+        <div class="page-header">
+            <div>
+                <h1>Professors</h1>
+                <p>Review and approve professors for outreach</p>
+            </div>
+        </div>
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search professors by name, university, or department..." onkeyup="searchProfessors()">
+            <button class="btn btn-primary" onclick="searchProfessors()">&#128269; Search</button>
+        </div>
+
+        <div class="professor-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>University</th>
+                        <th>Department</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="professorsTableBody">
+                    {% for prof in professors %}
+                    <tr data-search="{{ (prof.name + ' ' + (prof.university or '') + ' ' + (prof.department or '')).lower() }}">
+                        <td>
+                            <div class="professor-name">{{ prof.name }}</div>
+                        </td>
+                        <td>
+                            <div class="professor-university">{{ prof.university or 'N/A' }}</div>
+                        </td>
+                        <td>{{ prof.department or 'N/A' }}</td>
+                        <td>{{ prof.email or 'Not found' }}</td>
+                        <td>
+                            {% if prof.approved == 1 %}
+                                <span class="status-badge status-approved">&#9989; Approved</span>
+                            {% elif prof.approved == 0 %}
+                                <span class="status-badge status-rejected">&#10060; Rejected</span>
+                            {% else %}
+                                <span class="status-badge status-pending">&#9203; Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-success btn-sm" onclick="approve({{ prof.id }})">&#9989; Approve</button>
+                            <button class="btn btn-danger btn-sm" onclick="reject({{ prof.id }})">&#10060; Reject</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{% endblock %}
+
+{% block extra_js %}
+        async function approve(id) {
+            await fetch(`/api/approve-professor/${id}`, { method: 'POST' });
+            location.reload();
+        }
+        async function reject(id) {
+            await fetch(`/api/reject-professor/${id}`, { method: 'POST' });
+            location.reload();
+        }
+        function searchProfessors() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('#professorsTableBody tr').forEach(row => {
+                const searchData = row.getAttribute('data-search') || '';
+                row.style.display = searchData.includes(query) ? '' : 'none';
+            });
+        }
+{% endblock %}

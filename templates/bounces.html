@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Bounces — Professor Outreach{% endblock %}
+
+{% block extra_css %}
+        .page-header { margin-bottom: 28px; }
+        .page-header h1 { font-size: 32px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+        .page-header p { color: var(--gray-500); font-size: 15px; }
+        .bounce-table { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); overflow: hidden; box-shadow: var(--shadow); }
+        .bounce-table table { width: 100%; border-collapse: collapse; }
+        .bounce-table th {
+            background: var(--gray-50); padding: 16px 20px; text-align: left;
+            font-weight: 700; font-size: 12px; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--gray-500); border-bottom: 2px solid var(--gray-200);
+        }
+        .bounce-table td { padding: 16px 20px; border-bottom: 1px solid var(--gray-100); font-size: 14px; vertical-align: middle; }
+        .bounce-table tr:hover { background: var(--gray-50); }
+{% endblock %}
+
+{% block content %}
+        <div class="page-header">
+            <h1>Bounces</h1>
+            <p>Manage failed email deliveries</p>
+        </div>
+
+        <div class="bounce-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bounce in bounces %}
+                    <tr>
+                        <td>{{ bounce.id }}</td>
+                        <td>{{ bounce.subject or 'No Subject' }}</td>
+                        <td><span style="color: var(--danger); font-weight: 700;">&#128165; Bounced</span></td>
+                        <td>{{ bounce.created_at }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state" style="padding: 60px 20px;">
+                                <div class="empty-state-icon">&#127881;</div>
+                                <h3>No bounces!</h3>
+                                <p>All your emails have been delivered successfully. Great job!</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{% endblock %}

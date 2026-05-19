@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up — Professor Outreach</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #e0e7ff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-500: #6b7280;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --radius: 8px;
+            --radius-lg: 16px;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .signup-container { width: 100%; max-width: 400px; padding: 20px; }
+        .signup-box {
+            background: var(--white); padding: 40px;
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+        }
+        .signup-header { text-align: center; margin-bottom: 32px; }
+        .signup-icon {
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            border-radius: var(--radius-lg);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin: 0 auto 16px;
+        }
+        .signup-header h2 { font-size: 24px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
+        .signup-header p { color: var(--gray-500); font-size: 14px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block; margin-bottom: 8px;
+            font-weight: 600; font-size: 14px; color: var(--gray-700);
+        }
+        .form-group input {
+            width: 100%; padding: 12px 16px;
+            border: 1px solid var(--gray-200); border-radius: var(--radius);
+            font-family: inherit; font-size: 14px; color: var(--gray-900);
+            transition: all 0.2s;
+        }
+        .form-group input:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+        .btn-signup {
+            width: 100%; padding: 12px;
+            background: var(--primary); color: white;
+            border: none; border-radius: var(--radius);
+            font-weight: 600; font-size: 16px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-signup:hover { background: var(--primary-dark); }
+        .alert {
+            padding: 12px 16px; border-radius: var(--radius);
+            margin-bottom: 20px; font-size: 14px; font-weight: 500;
+        }
+        .alert-error { background: var(--danger-light); color: #991b1b; }
+        .alert-success { background: var(--success-light); color: #065f46; }
+        .login-link {
+            text-align: center; margin-top: 24px;
+            padding-top: 24px; border-top: 1px solid var(--gray-200);
+            color: var(--gray-500); font-size: 14px;
+        }
+        .login-link a {
+            color: var(--primary); font-weight: 600; text-decoration: none;
+        }
+        .login-link a:hover { text-decoration: underline; }
+        .password-hint { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="signup-box">
+            <div class="signup-header">
+                <div class="signup-icon">&#128100;</div>
+                <h2>Create Account</h2>
+                <p>Sign up to start your outreach campaign</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/signup">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required autofocus minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a password" required minlength="6">
+                    <div class="password-hint">Minimum 6 characters</div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required>
+                </div>
+                <button type="submit" class="btn-signup">Create Account</button>
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a href="/login">Sign in</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

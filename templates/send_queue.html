@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Send Queue — Professor Outreach{% endblock %}
+
+{% block extra_css %}
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .page-header h1 { font-size: 30px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+        .page-header p { color: var(--gray-500); font-size: 14px; }
+        .queue-actions { display: flex; gap: 12px; margin-bottom: 24px; }
+        .queue-table { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); overflow: hidden; box-shadow: var(--shadow); }
+        .queue-table table { width: 100%; border-collapse: collapse; }
+        .queue-table th {
+            background: var(--gray-50); padding: 16px; text-align: left;
+            font-weight: 600; font-size: 12px; text-transform: uppercase;
+            letter-spacing: 0.05em; color: var(--gray-500); border-bottom: 1px solid var(--gray-200);
+        }
+        .queue-table td { padding: 16px; border-bottom: 1px solid var(--gray-100); font-size: 14px; }
+        .queue-table tr:hover { background: var(--gray-50); }
+        .checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary); }
+        .professor-info h4 { font-weight: 600; color: var(--gray-900); font-size: 14px; }
+        .professor-info p { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+        .email-subject { font-weight: 500; color: var(--gray-800); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+{% endblock %}
+
+{% block content %}
+        <div class="page-header">
+            <div>
+                <h1>Send Queue</h1>
+                <p>Emails ready to be sent to professors</p>
+            </div>
+        </div>
+
+        {% if emails %}
+        <div class="queue-actions">
+            <button class="btn btn-outline" onclick="selectAll()">&#9745; Select All</button>
+            <button class="btn btn-outline" onclick="deselectAll()">&#9744; Deselect All</button>
+            <button class="btn btn-success" onclick="sendSelected()">&#128228; Send Selected</button>
+            <button class="btn btn-primary" onclick="sendAll()">&#128228; Send All</button>
+        </div>
+
+        <div class="queue-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" class="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()"></th>
+                        <th>Professor</th>
+                        <th>University</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for email in emails %}
+                    <tr>
+                        <td><input type="checkbox" class="checkbox email-checkbox" value="{{ email.id }}"></td>
+                        <td>
+                            <div class="professor-info">
+                                <h4>{{ email.professor_name }}</h4>
+                                <p>{{ email.professor_email }}</p>
+                            </div>
+                        </td>
+                        <td>{{ email.university }}</td>
+                        <td class="email-subject">{{ email.subject }}</td>
+                        <td><span class="status-badge status-ready">&#9989; Ready</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">&#128236;</div>
+            <h3>Queue is empty</h3>
+            <p>No emails are ready to send. Mark emails as "Ready" from the Emails page.</p>
+            <a href="/emails" class="btn btn-primary" style="margin-top: 16px;">Go to Emails</a>
+        </div>
+        {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+        function toggleSelectAll() {
+            const master = document.getElementById('selectAllCheckbox');
+            document.querySelectorAll('.email-checkbox').forEach(cb => { cb.checked = master.checked; });
+        }
+        function selectAll() { document.getElementById('selectAllCheckbox').checked = true; toggleSelectAll(); }
+        function deselectAll() { document.getElementById('selectAllCheckbox').checked = false; toggleSelectAll(); }
+        function getSelectedIds() {
+            return Array.from(document.querySelectorAll('.email-checkbox:checked')).map(cb => cb.value);
+        }
+        async function sendSelected() {
+            const ids = getSelectedIds();
+            if (ids.length === 0) { showToast('Please select at least one email', 'error'); return; }
+            await sendEmails(ids);
+        }
+        async function sendAll() {
+            const ids = Array.from(document.querySelectorAll('.email-checkbox')).map(cb => cb.value);
+            if (ids.length === 0) return;
+            if (!confirm('Send all ' + ids.length + ' emails?')) return;
+            await sendEmails(ids);
+        }
+        async function sendEmails(ids) {
+            setProgress(true);
+            showToast('Sending emails...', 'info');
+            try {
+                const response = await fetch('/api/send-emails', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email_ids: ids, test_mode: true })
+                });
+                const data = await response.json();
+                setProgress(false);
+                if (data.success) {
+                    showToast('Sent ' + data.results.length + ' emails (TEST mode)', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else { showToast(data.error || 'Failed', 'error'); }
+            } catch (e) {
+                setProgress(false);
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+{% endblock %}
