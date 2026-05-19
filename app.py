@@ -437,7 +437,7 @@ def send_emails():
     """Send emails via real SMTP. Respects test_mode."""
     data = request.get_json(silent=True) or {}
     email_ids = data.get('email_ids', [])
-    test_mode = data.get('test_mode', True)
+    test_mode = data.get('test_mode', os.environ.get('TEST_MODE', 'true').lower() == 'true')
     if not email_ids:
         return jsonify({'success': False, 'error': 'No emails selected'}), 400
 
