@@ -2,7 +2,7 @@
 
 > AI-powered professor discovery and personalized cold email outreach platform for research students seeking collaboration opportunities.
 
-**[Live Demo](https://professor-outreach.onrender.com)** | **[Portfolio](https://github.com/ishanvireddy71)**
+**[Live Demo](https://professor-outreach-n960.onrender.com)** | **[Portfolio](https://github.com/ishanvireddy71)**
 
 ---
 
