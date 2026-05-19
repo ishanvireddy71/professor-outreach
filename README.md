@@ -1,8 +1,7 @@
 Professor Outreach
 AI-powered professor discovery and personalized cold email outreach platform for research students seeking collaboration opportunities.
-🔗 Live Demo ·
-📄 Portfolio
-What this is
+Live Demo | Portfolio
+What This Is
 A Flask-based web application that automates the entire professor outreach pipeline:
 Discovers real professors from target universities using curated fallback data
 Guesses academic email patterns (firstname.lastname@mit.edu) with MX validation
@@ -13,16 +12,16 @@ Built for students who want to reach out to professors for research opportunitie
 Features
 Table
 Feature	Status
-Professor Discovery (10+ universities)	✅
-Smart Email Pattern Guessing + MX Validation	✅
-AI Email Generation (GPT-4o-mini)	✅
-Real Gmail SMTP Sending	✅
-IMAP Bounce Detection	✅
-Analytics Dashboard	✅
-CSV/JSON Data Export	✅
-Bulk Approve/Reject	✅
-Email Scheduling	✅
-Advanced Search	✅
+Professor Discovery (10+ universities)	Done
+Smart Email Pattern Guessing + MX Validation	Done
+AI Email Generation (GPT-4o-mini)	Done
+Real Gmail SMTP Sending	Done
+IMAP Bounce Detection	Done
+Analytics Dashboard	Done
+CSV/JSON Data Export	Done
+Bulk Approve/Reject	Done
+Email Scheduling	Done
+Advanced Search	Done
 Tech Stack
 Table
 Layer	Technology
@@ -35,33 +34,41 @@ Frontend	HTML5, CSS3, Jinja2 Templates
 Deploy	Render (Gunicorn)
 Run Locally
 Requirements: Python 3.11+
+1. Clone
 bash
 Copy
-# 1. Clone
-git clone https://github.com/YOUR_USERNAME/professor-outreach.git
+git clone https://github.com/ishanvireddy71/professor-outreach.git
 cd professor-outreach
-
-# 2. Create virtual environment
+2. Create virtual environment
+bash
+Copy
 python -m venv .venv
-.venv\Scripts\activate  # Windows
-source .venv/bin/activate  # macOS/Linux
 
-# 3. Install dependencies
+# Windows
+.venv\Scripts\activate
+
+# macOS/Linux
+source .venv/bin/activate
+3. Install dependencies
+bash
+Copy
 pip install -r requirements.txt
-
-# 4. Configure environment
-# Create .env file:
-# SECRET_KEY=your-random-key
-# GMAIL_USER=your_email@gmail.com
-# GMAIL_APP_PASSWORD=your_16_char_app_password
-# OPENAI_API_KEY=your_openai_key
-
-# 5. Run
+4. Configure environment
+Create a .env file in the project root:
+bash
+Copy
+SECRET_KEY=your-random-key
+GMAIL_USER=your_email@gmail.com
+GMAIL_APP_PASSWORD=your_16_char_app_password
+OPENAI_API_KEY=your_openai_key
+5. Run
+bash
+Copy
 python app.py
-Open http://localhost:5000.
+Open http://localhost:5000
 How to Use
 Sign up at /signup
-Configure settings — your name, university, research topic, target universities
+Configure settings - your name, university, research topic, target universities
 Run the pipeline from Dashboard:
 Discover Professors
 Find Emails
@@ -101,17 +108,16 @@ Copy
   "target_universities": ["MIT", "Stanford", "CMU", "Berkeley", "Harvard"],
   "test_mode": true
 }
-Secrets live only in .env — never in config.json.
+Secrets live only in .env - never in config.json.
 Deployment
 Render (Free Tier)
 Push to GitHub (.env is in .gitignore)
 Connect repo on render.com
 Add environment variables in Render dashboard
 Deploy
-Note: Render free tier has ephemeral filesystem — SQLite resets on redeploy.
+Note: Render free tier has ephemeral filesystem - SQLite resets on redeploy.
 Author
-Ishanvi Reddy — B.Tech AI & Data Science, KL University
-GitHub: ishanvireddy71 · 
-Email: ishanvireddy79@gmail.com
+Ishanvi Reddy - B.Tech AI & Data Science, KL University
+GitHub: ishanvireddy71 | Email: ishanvireddy79@gmail.com
 License
 MIT
